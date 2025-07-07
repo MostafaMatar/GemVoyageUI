@@ -52,7 +52,7 @@ const Navbar: React.FC = () => {
         <div className="flex items-center">
           <Link to="/" className="flex items-center gap-2 mr-6">
             <img 
-              src="../../public/logo.png" 
+              src="logo.png" 
               alt="GemVoyage Logo"
               className="h-8 w-8"
             />
