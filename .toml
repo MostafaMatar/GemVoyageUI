@@ -1,0 +1,9 @@
+# Cloudflare Pages deployment config for Vite React
+[build]
+command = "npm run build"
+
+[build.environment]
+NODE_VERSION = "18"
+
+[site]
+bucket = "dist"
