@@ -157,6 +157,7 @@ const CreateGemPage: React.FC = () => {
         onChange={handleEditorChange}
       />
       <Button onClick={(e) => handleSubmit(e)} className="py-2 px-4 bg-primary text-white font-bold w-full rounded hover:bg-primary-dark" type="submit">Create Gem</Button>
+      <div id="ezoic-pub-ad-placeholder-114"></div>
     </div>
   );
 };

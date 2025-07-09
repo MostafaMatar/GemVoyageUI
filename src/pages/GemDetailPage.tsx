@@ -194,12 +194,12 @@ const GemDetailPage: React.FC = () => {
             <div className="prose max-w-none">
               <div className="text-lg leading-relaxed mb-8" dangerouslySetInnerHTML={{ __html: mdParser.render(gem.description) }} />
             </div>
+            <div id="ezoic-pub-ad-placeholder-114"></div>
             <Separator className="my-8" />
-
-
           </div>
 
           <div className="md:w-1/3">
+            <div id="ezoic-pub-ad-placeholder-104"></div>
             <div className="bg-muted p-4 rounded-lg shadow-md">
               <h2 className="text-lg font-semibold mb-2">Votes</h2>
               <div className="flex items-center space-x-4 mb-4">
