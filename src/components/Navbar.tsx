@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Earth, Compass, User } from 'lucide-react';
+import { Earth, Compass, User, Menu, X } from 'lucide-react';
 import { API_BASE_URL } from '../lib/apiConfig';
 
 const Navbar: React.FC = () => {
@@ -10,6 +10,7 @@ const Navbar: React.FC = () => {
     return localStorage.getItem('isLoggedIn') === 'true';
   });
   const [logoutError, setLogoutError] = useState<string | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -41,16 +42,25 @@ const Navbar: React.FC = () => {
       localStorage.removeItem('access_token');
       localStorage.removeItem('userId');
       setIsLoggedIn(false);
+      setIsMobileMenuOpen(false); // Close mobile menu after logout
     } catch (err: any) {
       setLogoutError(err.message || 'Logout failed');
     }
+  };
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
   };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container max-w-7xl flex h-16 items-center justify-between px-4 sm:px-6">
         <div className="flex items-center">
-          <Link to="/" className="flex items-center gap-2 mr-6">
+          <Link to="/" className="flex items-center gap-2 mr-6" onClick={closeMobileMenu}>
             <img 
               src="logo.png" 
               alt="GemVoyage Logo"
@@ -96,15 +106,25 @@ const Navbar: React.FC = () => {
               </Button>
             )}
           </div>
-          <Button variant="ghost" size="icon" className="md:hidden">
-            <Compass className="h-5 w-5" />
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="md:hidden"
+            onClick={toggleMobileMenu}
+            aria-label="Toggle mobile menu"
+          >
+            {isMobileMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
           </Button>
           {isLoggedIn && (
             <>
               <Button
                 variant="outline"
                 size="sm"
-                className="bg-gem-400 hover:bg-gem-500 text-white mr-2"
+                className="bg-gem-400 hover:bg-gem-500 text-white mr-2 hidden sm:flex"
                 onClick={() => navigate('/create')}
               >
                 Create Gem
@@ -116,6 +136,69 @@ const Navbar: React.FC = () => {
           )}
         </div>
       </div>
+      
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <nav className="container max-w-7xl px-4 py-4 space-y-4">
+            <Link 
+              to="/" 
+              className="block text-sm font-medium transition-colors hover:text-primary"
+              onClick={closeMobileMenu}
+            >
+              Home
+            </Link>
+            <Link 
+              to="/browse" 
+              className="block text-sm font-medium transition-colors hover:text-primary"
+              onClick={closeMobileMenu}
+            >
+              Browse Gems
+            </Link>
+            
+            {/* Mobile Auth Buttons */}
+            <div className="pt-2 border-t space-y-2">
+              {!isLoggedIn ? (
+                <>
+                  <Link to="/login" onClick={closeMobileMenu}>
+                    <Button variant="outline" size="sm" className="w-full">
+                      Sign In
+                    </Button>
+                  </Link>
+                  <Link to="/register" onClick={closeMobileMenu}>
+                    <Button size="sm" className="w-full bg-gem-300 hover:bg-gem-400">
+                      Sign Up
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full bg-gem-400 hover:bg-gem-500 text-white"
+                    onClick={() => {
+                      navigate('/create');
+                      closeMobileMenu();
+                    }}
+                  >
+                    Create Gem
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="destructive" 
+                    className="w-full"
+                    onClick={handleLogout}
+                  >
+                    Log Out
+                  </Button>
+                </>
+              )}
+            </div>
+          </nav>
+        </div>
+      )}
+      
       {logoutError && (
         <div className="text-red-600 text-sm text-center mt-2">{logoutError}</div>
       )}
