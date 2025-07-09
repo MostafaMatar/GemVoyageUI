@@ -1,13 +1,14 @@
-#Ads.txt gemvoyage.net
-#Ads.txt managed by AdsTxtManager.com - the free ads.txt management tool for publishers
-ownerdomain=gemvoyage.net
-contact=directsales@ezoic.com
-managerdomain=ezoic.ai
-
-ezoic.ai, fa25d5b6bf2cf768909c75ce81c06ad8, DIRECT
-# 35
-themediagrid.com, 4M5PGT, DIRECT, 35d5010d7789b49d
-themediagrid.com, Q19AKF, DIRECT, 35d5010d7789b49d
-sonobi.com, 192ecdea01, RESELLER, d1a215d9eb5aee9e
-google.com, pub-6644558441501035, DIRECT, f08c47fec0942fa0
-google.com, pub-1175987143200523, RESELLER, f08c47fec0942fa0
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="refresh" content="0;url=https://srv.adstxtmanager.com/19390/gemvoyage.net">
+    <title>Redirecting to ads.txt</title>
+</head>
+<body>
+    <script>
+        window.location.replace('https://srv.adstxtmanager.com/19390/gemvoyage.net');
+    </script>
+    <p>If you are not redirected automatically, <a href="https://srv.adstxtmanager.com/19390/gemvoyage.net">click here</a>.</p>
+</body>
+</html>

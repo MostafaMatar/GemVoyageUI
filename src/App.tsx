@@ -16,7 +16,6 @@ import CompleteProfile from "./components/CompleteProfile";
 import EditProfile from "./pages/EditProfile";
 import TermsOfServicePage from "./pages/TermsOfServicePage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
-import AdsRedirect from "./components/AdsRedirect";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -37,7 +36,6 @@ const App = () => (
           <Route path="/edit-profile" element={<Layout><EditProfile /></Layout>} />
           <Route path="/terms" element={<Layout><TermsOfServicePage /></Layout>} />
           <Route path="/privacy" element={<Layout><PrivacyPolicyPage /></Layout>} />
-          <Route path="/ads.txt" element={<AdsRedirect />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
