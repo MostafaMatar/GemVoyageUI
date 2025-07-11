@@ -24,34 +24,92 @@ const BrowsePage: React.FC = () => {
 
   const [gems, setGems] = useState<Gem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [allGems, setAllGems] = useState<Gem[]>([]); // Store all gems for filtering
   const [filteredGems, setFilteredGems] = useState<Gem[]>([]);
   
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [currentPage, setCurrentPage] = useState(1);
+  const [hasMorePages, setHasMorePages] = useState(true);
   const gemsPerPage = 10;
   
-  // Load gems on component mount
+  // Load all gems initially for filtering (we need this for search/category filtering)
   useEffect(() => {
-    const loadGems = async () => {
+    const loadAllGems = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/gem`);
-        if (!res.ok) throw new Error('Failed to fetch gems');
-        const allGems = await res.json();
-        setGems(allGems);
+        setLoading(true);
+        const allGemsData = [];
+        let offset = 0;
+        let hasMore = true;
+        
+        // Fetch all gems in batches for filtering purposes
+        while (hasMore) {
+          const res = await fetch(`${API_BASE_URL}/gem?offset=${offset}&category=All`);
+          if (!res.ok) throw new Error('Failed to fetch gems');
+          const batch = await res.json();
+          
+          if (batch.length === 0) {
+            hasMore = false;
+          } else {
+            allGemsData.push(...batch);
+            offset += 10;
+            // If we got less than 10, we've reached the end
+            if (batch.length < 10) {
+              hasMore = false;
+            }
+          }
+        }
+        
+        setAllGems(allGemsData);
       } catch (err) {
-        setGems([]);
+        setAllGems([]);
       }
       setLoading(false);
     };
-    loadGems();
+    loadAllGems();
   }, []);
+
+  // Load gems for current page with server-side pagination
+  useEffect(() => {
+    const loadPageGems = async () => {
+      if (searchQuery.trim()) {
+        // For search results, use client-side pagination from allGems
+        return;
+      }
+      
+      try {
+        setLoading(true);
+        const offset = (currentPage - 1) * gemsPerPage;
+        const res = await fetch(`${API_BASE_URL}/gem?offset=${offset}&category=${selectedCategory}`);
+        if (!res.ok) throw new Error('Failed to fetch gems');
+        const pageGems = await res.json();
+        
+        setGems(pageGems);
+        setHasMorePages(pageGems.length === 10);
+      } catch (err) {
+        setGems([]);
+        setHasMorePages(false);
+      }
+      setLoading(false);
+    };
+    
+    if (!searchQuery.trim()) {
+      loadPageGems();
+    }
+  }, [currentPage, searchQuery, selectedCategory]);
   
   // Filter gems when filters or search query change
   useEffect(() => {
     if (loading) return;
     
-    let filtered = [...gems];
+    // If no search query, use server-side paginated gems (with category filtering)
+    if (!searchQuery.trim()) {
+      setFilteredGems(gems);
+      return;
+    }
+    
+    // For search results, use all gems and apply client-side filtering
+    let filtered = [...allGems];
     
     // Apply category filter
     if (selectedCategory !== 'All') {
@@ -71,7 +129,7 @@ const BrowsePage: React.FC = () => {
     
     setFilteredGems(filtered);
     
-  }, [gems, searchQuery, selectedCategory, loading]);
+  }, [gems, allGems, searchQuery, selectedCategory, loading]);
   
   // Update URL when category changes
   useEffect(() => {
@@ -88,11 +146,14 @@ const BrowsePage: React.FC = () => {
   }, [searchQuery, selectedCategory]);
 
   // Pagination logic
-  const totalPages = Math.ceil(filteredGems.length / gemsPerPage);
-  const paginatedGems = filteredGems.slice(
-    (currentPage - 1) * gemsPerPage,
-    currentPage * gemsPerPage
-  );
+  const isFiltered = searchQuery.trim(); // Only search query requires client-side filtering now
+  const displayGems = isFiltered ? 
+    filteredGems.slice((currentPage - 1) * gemsPerPage, currentPage * gemsPerPage) : 
+    filteredGems;
+  
+  const totalPages = isFiltered ? Math.ceil(filteredGems.length / gemsPerPage) : null;
+  const canGoNext = isFiltered ? currentPage < totalPages! : hasMorePages;
+  const canGoPrev = currentPage > 1;
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,35 +208,48 @@ const BrowsePage: React.FC = () => {
         ) : filteredGems.length > 0 ? (
           <>
             <div className="mb-6 text-muted-foreground">
-              {filteredGems.length} {filteredGems.length === 1 ? 'gem' : 'gems'} found
+              {isFiltered 
+                ? `${filteredGems.length} ${filteredGems.length === 1 ? 'gem' : 'gems'} found`
+                : `Page ${currentPage} of gems`
+              }
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {paginatedGems.map(gem => (
+              {displayGems.map(gem => (
                 <GemCard key={gem.id} gem={gem} />
               ))}
             </div>
             {/* Pagination Controls */}
-            {totalPages > 1 && (
+            {(canGoNext || canGoPrev) && (
               <div className="flex justify-center items-center gap-2 mt-8">
                 <Button
                   variant="outline"
-                  disabled={currentPage === 1}
+                  disabled={!canGoPrev}
                   onClick={() => setCurrentPage(currentPage - 1)}
                 >
                   Prev
                 </Button>
-                {Array.from({ length: totalPages }, (_, i) => (
-                  <Button
-                    key={i + 1}
-                    variant={currentPage === i + 1 ? "default" : "outline"}
-                    onClick={() => setCurrentPage(i + 1)}
-                  >
-                    {i + 1}
-                  </Button>
-                ))}
+                
+                {isFiltered && totalPages && totalPages <= 10 ? (
+                  // Show page numbers for filtered results with reasonable total pages
+                  Array.from({ length: totalPages }, (_, i) => (
+                    <Button
+                      key={i + 1}
+                      variant={currentPage === i + 1 ? "default" : "outline"}
+                      onClick={() => setCurrentPage(i + 1)}
+                    >
+                      {i + 1}
+                    </Button>
+                  ))
+                ) : (
+                  // Show current page for unfiltered results or many pages
+                  <span className="px-4 py-2 text-sm text-muted-foreground">
+                    Page {currentPage}
+                  </span>
+                )}
+                
                 <Button
                   variant="outline"
-                  disabled={currentPage === totalPages}
+                  disabled={!canGoNext}
                   onClick={() => setCurrentPage(currentPage + 1)}
                 >
                   Next
