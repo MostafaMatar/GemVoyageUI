@@ -76,6 +76,15 @@ const GemCard: React.FC<GemCardProps> = ({ gem }) => {
             src={gem.image ?? '/placeholder.svg'} 
             alt={gem.title} 
             className="h-full w-full object-cover transition-transform hover:scale-105 duration-300"
+            loading="lazy"
+            decoding="async"
+            srcSet={gem.imageUrl ? `
+              ${gem.imageUrl}?w=400 400w,
+              ${gem.imageUrl}?w=800 800w,
+              ${gem.imageUrl}?w=1200 1200w
+            ` : undefined}
+            sizes="(max-width: 768px) 100vw, 33vw"
+            style={{ background: '#f3f3f3' }}
           />
         </div>
       </Link>

@@ -186,6 +186,15 @@ const GemDetailPage: React.FC = () => {
             src={gem.image ?? '/placeholder.svg'}
             alt={gem.title}
             className="w-full h-[400px] md:h-[500px] object-cover"
+            loading="lazy"
+            decoding="async"
+            srcSet={gem.image ? `
+              ${gem.image}?w=400 400w,
+              ${gem.image}?w=800 800w,
+              ${gem.image}?w=1200 1200w
+            ` : undefined}
+            sizes="(max-width: 768px) 100vw, 66vw"
+            style={{ background: '#f3f3f3' }}
           />
         </div>
 
