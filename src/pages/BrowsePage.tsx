@@ -147,9 +147,9 @@ const BrowsePage: React.FC = () => {
 
   // Pagination logic
   const isFiltered = searchQuery.trim(); // Only search query requires client-side filtering now
-  const displayGems = isFiltered ? 
-    filteredGems.slice((currentPage - 1) * gemsPerPage, currentPage * gemsPerPage) : 
-    filteredGems;
+  const displayGems = isFiltered
+  ? filteredGems.slice((currentPage - 1) * gemsPerPage, currentPage * gemsPerPage)
+  : gems;
   
   const totalPages = isFiltered ? Math.ceil(filteredGems.length / gemsPerPage) : null;
   const canGoNext = isFiltered ? currentPage < totalPages! : hasMorePages;
