@@ -22,69 +22,55 @@ const BrowsePage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialCategory = searchParams.get('category') || 'All';
 
-  const [gems, setGems] = useState<Gem[]>([]);
+  const [allGems, setAllGems] = useState<Gem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchLoading, setSearchLoading] = useState(false);
-  const [searchResults, setSearchResults] = useState<Gem[]>([]);
+  const [filteredGems, setFilteredGems] = useState<Gem[]>([]);
   
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [currentPage, setCurrentPage] = useState(1);
-  const [hasMorePages, setHasMorePages] = useState(true);
-  const gemsPerPage = 10;
+  const gemsPerPage = 9;
 
-  // Load gems for current page - handles both browsing and search
+  // Load all gems once on component mount
   useEffect(() => {
-    const loadGems = async () => {
-      if (searchQuery.trim()) {
-        // Handle search with server-side search if API supports it
-        setSearchLoading(true);
-        try {
-          const res = await fetch(`${API_BASE_URL}/gem/search?q=${encodeURIComponent(searchQuery)}&category=${selectedCategory}&offset=0`);
-          if (res.ok) {
-            const results = await res.json();
-            setSearchResults(results);
-          } else {
-            // Fallback: search all gems client-side (less efficient but works)
-            const res = await fetch(`${API_BASE_URL}/gem?offset=0&category=All&limit=1000`);
-            if (res.ok) {
-              const allGems = await res.json();
-              const query = searchQuery.toLowerCase();
-              const filtered = allGems.filter((gem: any) => {
-                const matchesSearch = gem.title.toLowerCase().includes(query) || 
-                                    gem.description.toLowerCase().includes(query) ||
-                                    gem.location.toLowerCase().includes(query);
-                const matchesCategory = selectedCategory === 'All' || gem.category === selectedCategory;
-                return matchesSearch && matchesCategory;
-              });
-              setSearchResults(filtered);
-            }
-          }
-        } catch (err) {
-          setSearchResults([]);
-        }
-        setSearchLoading(false);
-      } else {
-        // Regular pagination for browsing
-        setLoading(true);
-        try {
-          const offset = (currentPage - 1) * gemsPerPage;
-          const res = await fetch(`${API_BASE_URL}/gem?offset=${offset}&category=${selectedCategory}`);
-          if (!res.ok) throw new Error('Failed to fetch gems');
-          const pageGems = await res.json();
-          
-          setGems(pageGems);
-          setHasMorePages(pageGems.length === gemsPerPage);
-        } catch (err) {
-          setGems([]);
-          setHasMorePages(false);
-        }
-        setLoading(false);
+    const loadAllGems = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${API_BASE_URL}/gem`);
+        if (!res.ok) throw new Error('Failed to fetch gems');
+        const gems = await res.json();
+        setAllGems(gems);
+      } catch (err) {
+        console.error('Error loading gems:', err);
+        setAllGems([]);
       }
+      setLoading(false);
     };
-    
-    loadGems();
-  }, [currentPage, searchQuery, selectedCategory]);
+
+    loadAllGems();
+  }, []);
+
+  // Filter gems when search query or category changes
+  useEffect(() => {
+    let filtered = [...allGems];
+
+    // Apply category filter
+    if (selectedCategory !== 'All') {
+      filtered = filtered.filter(gem => gem.category === selectedCategory);
+    }
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(gem => 
+        gem.title.toLowerCase().includes(query) || 
+        gem.description.toLowerCase().includes(query) ||
+        gem.location.toLowerCase().includes(query)
+      );
+    }
+
+    setFilteredGems(filtered);
+  }, [allGems, searchQuery, selectedCategory]);
   
   // Update URL when category changes
   useEffect(() => {
@@ -100,17 +86,15 @@ const BrowsePage: React.FC = () => {
     setCurrentPage(1);
   }, [searchQuery, selectedCategory]);
 
-  // Pagination logic
-  const isSearching = searchQuery.trim();
-  const currentGems = isSearching ? searchResults : gems;
-  const displayGems = isSearching 
-    ? currentGems.slice((currentPage - 1) * gemsPerPage, currentPage * gemsPerPage)
-    : currentGems;
+  // Calculate pagination
+  const totalGems = filteredGems.length;
+  const totalPages = Math.ceil(totalGems / gemsPerPage);
+  const startIndex = (currentPage - 1) * gemsPerPage;
+  const endIndex = startIndex + gemsPerPage;
+  const displayGems = filteredGems.slice(startIndex, endIndex);
   
-  const totalPages = isSearching ? Math.ceil(currentGems.length / gemsPerPage) : null;
-  const canGoNext = isSearching ? currentPage < totalPages! : hasMorePages;
+  const canGoNext = currentPage < totalPages;
   const canGoPrev = currentPage > 1;
-  const isLoading = isSearching ? searchLoading : loading;
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -156,18 +140,18 @@ const BrowsePage: React.FC = () => {
           </div>
         </div>
         
-        {isLoading ? (
+        {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
+            {[...Array(9)].map((_, i) => (
               <div key={i} className="h-[350px] bg-muted rounded-lg animate-pulse"></div>
             ))}
           </div>
-        ) : currentGems.length > 0 ? (
+        ) : displayGems.length > 0 ? (
           <>
             <div className="mb-6 text-muted-foreground">
-              {isSearching 
-                ? `${currentGems.length} ${currentGems.length === 1 ? 'gem' : 'gems'} found`
-                : `Page ${currentPage} of gems`
+              {searchQuery.trim() || selectedCategory !== 'All'
+                ? `Found ${totalGems} ${totalGems === 1 ? 'gem' : 'gems'} • Page ${currentPage} of ${totalPages}`
+                : `Showing ${displayGems.length} gems • Page ${currentPage} of ${totalPages}`
               }
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -176,7 +160,7 @@ const BrowsePage: React.FC = () => {
               ))}
             </div>
             {/* Pagination Controls */}
-            {(canGoNext || canGoPrev) && (
+            {totalPages > 1 && (
               <div className="flex justify-center items-center gap-2 mt-8">
                 <Button
                   variant="outline"
@@ -186,21 +170,21 @@ const BrowsePage: React.FC = () => {
                   Prev
                 </Button>
                 
-                {isSearching && totalPages && totalPages <= 10 ? (
-                  // Show page numbers for search results with reasonable total pages
+                {/* Show page numbers for reasonable number of pages */}
+                {totalPages <= 10 ? (
                   Array.from({ length: totalPages }, (_, i) => (
                     <Button
                       key={i + 1}
                       variant={currentPage === i + 1 ? "default" : "outline"}
                       onClick={() => setCurrentPage(i + 1)}
+                      size="sm"
                     >
                       {i + 1}
                     </Button>
                   ))
                 ) : (
-                  // Show current page for regular browsing or many pages
                   <span className="px-4 py-2 text-sm text-muted-foreground">
-                    Page {currentPage}
+                    Page {currentPage} of {totalPages}
                   </span>
                 )}
                 
@@ -218,7 +202,10 @@ const BrowsePage: React.FC = () => {
           <div className="text-center py-16">
             <h3 className="text-xl font-semibold mb-2">No gems found</h3>
             <p className="text-muted-foreground mb-6">
-              Try adjusting your filters or search query
+              {searchQuery.trim() || selectedCategory !== 'All'
+                ? 'Try adjusting your filters or search query'
+                : 'No gems available at the moment'
+              }
             </p>
             <Button 
               onClick={() => {
