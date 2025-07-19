@@ -1,18 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MapPin, Calendar, ArrowLeft, Bookmark, ArrowUp, ArrowDown } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import VoteButtons from '@/components/VoteButtons';
-import CommentSection from '@/components/CommentSection';
 import { Gem } from '@/types';
 import { format } from 'date-fns';
 import MarkdownIt from 'markdown-it';
-import AuthorInfo from '@/components/AuthorInfo';
 import { API_BASE_URL } from '../lib/apiConfig';
 import { useToast } from "@/hooks/use-toast";
+import { VoteButtonsSkeleton, CommentSkeleton, AuthorSkeleton } from '@/components/ui/loading';
+
+// Lazy load heavy components
+const VoteButtons = lazy(() => import('@/components/VoteButtons'));
+const CommentSection = lazy(() => import('@/components/CommentSection'));
+const AuthorInfo = lazy(() => import('@/components/AuthorInfo'));
 
 const GemDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -175,7 +178,9 @@ const GemDetailPage: React.FC = () => {
 
             <div className="flex items-center text-muted-foreground">
               <span className="ml-2">
-                <AuthorInfo userId={gem.owner ?? ''} />
+                <Suspense fallback={<AuthorSkeleton />}>
+                  <AuthorInfo userId={gem.owner ?? ''} />
+                </Suspense>
               </span>
             </div>
           </div>
@@ -227,7 +232,9 @@ const GemDetailPage: React.FC = () => {
             </div>
           </div>
         </div>
-        <CommentSection gemId={gem.id} />
+        <Suspense fallback={<CommentSkeleton />}>
+          <CommentSection gemId={gem.id} />
+        </Suspense>
       </div>
     </div>
   );

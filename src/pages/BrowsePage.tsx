@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Input from '@/components/ui/Input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import GemCard from '@/components/GemCard';
 import { Gem } from '@/types';
 import { Search } from 'lucide-react';
 import { API_BASE_URL } from '../lib/apiConfig';
+import { GemCardSkeleton } from '@/components/ui/loading';
+
+// Lazy load the GemCard component
+const GemCard = lazy(() => import('@/components/GemCard'));
 
 const categories = [
   'All',
@@ -156,7 +159,9 @@ const BrowsePage: React.FC = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {displayGems.map(gem => (
-                <GemCard key={gem.id} gem={gem} />
+                <Suspense key={gem.id} fallback={<GemCardSkeleton />}>
+                  <GemCard gem={gem} />
+                </Suspense>
               ))}
             </div>
             {/* Pagination Controls */}

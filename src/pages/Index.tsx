@@ -1,16 +1,27 @@
-import React from 'react';
-import Hero from '@/components/Hero';
-import FeaturedGems from '@/components/FeaturedGems';
-import CategoriesSection from '@/components/CategoriesSection';
+import React, { Suspense, lazy } from 'react';
 import { Link } from 'lucide-react';
 import { API_BASE_URL } from '../lib/apiConfig';
+import { ContentLoading } from '@/components/ui/loading';
+
+// Lazy load components
+const Hero = lazy(() => import('@/components/Hero'));
+const FeaturedGems = lazy(() => import('@/components/FeaturedGems'));
+const CategoriesSection = lazy(() => import('@/components/CategoriesSection'));
 
 const Index: React.FC = () => {
   return (
     <div className="min-h-screen">
-      <Hero />
-      <FeaturedGems />
-      <CategoriesSection />
+      <Suspense fallback={<ContentLoading height="h-96" />}>
+        <Hero />
+      </Suspense>
+      
+      <Suspense fallback={<ContentLoading height="h-64" />}>
+        <FeaturedGems />
+      </Suspense>
+      
+      <Suspense fallback={<ContentLoading height="h-48" />}>
+        <CategoriesSection />
+      </Suspense>
 
       <section className="py-16 bg-gradient-to-r from-gem-100 to-gem-200">
         <div id="ezoic-pub-ad-placeholder-114"></div>

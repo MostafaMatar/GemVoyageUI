@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import { useToast } from "@/hooks/use-toast"
 import { Button, Label, Textarea, Input } from '@/components/ui/';
 import { useNavigate, Navigate } from 'react-router-dom';
-
 import MarkdownIt from 'markdown-it';
-import MdEditor from 'react-markdown-editor-lite';
-import 'react-markdown-editor-lite/lib/index.css';
 import { API_BASE_URL } from "../lib/apiConfig";
+import { EditorSkeleton } from '@/components/ui/loading';
+
+// Lazy load the markdown editor (and import its CSS)
+const MdEditor = lazy(() => {
+  import('react-markdown-editor-lite/lib/index.css');
+  return import('react-markdown-editor-lite');
+});
 
 const mdParser = new MarkdownIt();
 
@@ -150,12 +154,15 @@ const CreateGemPage: React.FC = () => {
           <option value="Entertainment">Entertainment</option>
       </select>
 
-      <MdEditor
-        value={content}
-        style={{ height: '400px' }}
-        renderHTML={(text) => mdParser.render(text)}
-        onChange={handleEditorChange}
-      />
+      <Suspense fallback={<EditorSkeleton />}>
+        <MdEditor
+          value={content}
+          style={{ height: '400px' }}
+          renderHTML={(text) => mdParser.render(text)}
+          onChange={handleEditorChange}
+        />
+      </Suspense>
+      
       <Button onClick={(e) => handleSubmit(e)} className="py-2 px-4 bg-primary text-white font-bold w-full rounded hover:bg-primary-dark" type="submit">Create Gem</Button>
       <div id="ezoic-pub-ad-placeholder-114"></div>
     </div>

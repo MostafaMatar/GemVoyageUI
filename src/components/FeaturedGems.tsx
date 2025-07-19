@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import GemCard from './GemCard';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { Gem } from '@/types';
 import { API_BASE_URL } from '../lib/apiConfig';
+import { GemCardSkeleton } from '@/components/ui/loading';
+
+// Lazy load GemCard
+const GemCard = lazy(() => import('./GemCard'));
 
 const FeaturedGems: React.FC = () => {
   const [gems, setGems] = useState<Gem[]>([]);
@@ -44,7 +47,9 @@ const FeaturedGems: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {gems.map((gem) => (
-              <GemCard key={gem.id} gem={gem} />
+              <Suspense key={gem.id} fallback={<GemCardSkeleton />}>
+                <GemCard gem={gem} />
+              </Suspense>
             ))}
           </div>
         )}
