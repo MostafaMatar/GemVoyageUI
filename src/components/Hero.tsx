@@ -6,7 +6,13 @@ const Hero: React.FC = () => {
   return (
     <div className="relative py-16 md:py-24 overflow-hidden">
       <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute inset-0 bg-[url('/hero.jpg')] bg-cover bg-center opacity-50"></div>
+        <img
+          src="/hero.jpg"
+          alt="Scenic travel background"
+          fetchPriority="high"
+          className="absolute inset-0 w-full h-full object-cover object-center opacity-50"
+          style={{ zIndex: -1 }}
+        />
         <div className="absolute inset-0 bg-gradient-to-r from-gem-100/50 via-transparent to-gem-100/50"></div>
       </div>
       
