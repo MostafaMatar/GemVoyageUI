@@ -1,4 +1,4 @@
-import React, { useState, Suspense, lazy } from 'react';
+import React, { useState, Suspense, lazy, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast"
 import { Button, Label, Textarea, Input } from '@/components/ui/';
 import { useNavigate, Navigate } from 'react-router-dom';
@@ -78,41 +78,103 @@ const CreateGemPage: React.FC = () => {
   const [content, setContent] = useState('');
   const [subject, setSubject] = useState('');
   const [location, setLocation] = useState('');
-  const [image, setImage] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [category, setCategory] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Cleanup preview URL when component unmounts
+  useEffect(() => {
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
 
 
   const handleEditorChange = ({ text }) => {
     setContent(text);
   };
 
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Check file size (2MB = 2 * 1024 * 1024 bytes)
+      const maxSize = 2 * 1024 * 1024;
+      if (file.size > maxSize) {
+        toast({
+          title: 'Error',
+          description: 'Image size must be less than 2MB.',
+          variant: 'destructive',
+        });
+        event.target.value = ''; // Clear the input
+        return;
+      }
+
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: 'Error',
+          description: 'Please select a valid image file.',
+          variant: 'destructive',
+        });
+        event.target.value = ''; // Clear the input
+        return;
+      }
+
+      setImageFile(file);
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setImageFile(null);
+      setImagePreview(null);
+    }
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!subject || !image || !content || !location || !category) {
+    if (!subject || !imageFile || !content || !location || !category) {
       toast({
         title: 'Error',
-        description: 'Please fill in all fields.',
+        description: 'Please fill in all fields and select an image.',
         variant: 'destructive',
       });
       return;
     }
+
+    setIsUploading(true);
+    
     try {
-      const res = await fetch(`${API_BASE_URL}/gem`, {
+      // Create FormData for multipart upload
+      const formData = new FormData();
+      
+      // Add gem data as JSON
+      const gemData = {
+        title: subject,
+        description: content,
+        owner: localStorage.getItem('userId'),
+        category,
+        location,
+        featured: false
+      };
+      
+      formData.append('gem', JSON.stringify(gemData));
+      formData.append('image', imageFile);
+
+      const res = await fetch(`${API_BASE_URL}/gem/upload`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: subject,
-          description: content,
-          owner: localStorage.getItem('userId'),
-          category,
-          image,
-          location,
-        }),
+        body: formData,
+        // Don't set Content-Type header - let the browser set it with boundary
       });
+
       if (!res.ok) {
         const text = await res.text();
         toast({
@@ -122,6 +184,7 @@ const CreateGemPage: React.FC = () => {
         });
         return;
       }
+
       const gem = await res.json();
       toast({
         title: 'Success',
@@ -135,14 +198,56 @@ const CreateGemPage: React.FC = () => {
         description: err.message || 'Failed to create gem.',
         variant: 'destructive',
       });
+    } finally {
+      setIsUploading(false);
     }
   };
 
   return (
     <div className="p-4">
-      <Input label="Title" className="w-full text-lg border-2 border-primary rounded-xl p-2 mb-4 shadow focus:ring-2 focus:ring-primary" type="text" id="subject" value={subject} onChange={(e) => setSubject(e.target.value)} required />
-      <Input label="Image (URL)" className="w-full text-lg border-2 border-primary rounded-xl p-2 mb-4 shadow focus:ring-2 focus:ring-primary" type="url" id="image" value={image} onChange={(e) => setImage(e.target.value)} required pattern="https?://.+" />
-      <Input label="City" className="w-full text-lg border-2 border-primary rounded-xl p-2 mb-4 shadow focus:ring-2 focus:ring-primary" type="text" id="location" value={location} onChange={(e) => setLocation(e.target.value)} required />
+      <Input 
+        label="Title" 
+        className="w-full text-lg border-2 border-primary rounded-xl p-2 mb-4 shadow focus:ring-2 focus:ring-primary" 
+        type="text" 
+        id="subject" 
+        value={subject} 
+        onChange={(e) => setSubject(e.target.value)} 
+        required 
+      />
+      <div className="mb-4">
+        <Label htmlFor="image">Image (Max 2MB)</Label>
+        <input
+          className="w-full text-lg border-2 border-primary rounded-xl p-2 shadow focus:ring-2 focus:ring-primary"
+          type="file"
+          id="image"
+          accept="image/*"
+          onChange={handleImageChange}
+          required
+        />
+        {imageFile && (
+          <div className="mt-2 text-sm text-gray-600">
+            Selected: {imageFile.name} ({(imageFile.size / 1024 / 1024).toFixed(2)} MB)
+          </div>
+        )}
+        {imagePreview && (
+          <div className="mt-2">
+            <img 
+              src={imagePreview} 
+              alt="Preview" 
+              className="max-w-full h-32 object-cover rounded-lg border"
+            />
+          </div>
+        )}
+      </div>
+      <Input 
+        label="City" 
+        className="w-full text-lg border-2 border-primary rounded-xl p-2 mb-4 shadow focus:ring-2 focus:ring-primary" 
+        type="text" 
+        id="location" 
+        value={location} 
+        onChange={(e) => setLocation(e.target.value)} 
+        required 
+      />
       <Label htmlFor="category">Category</Label>
       <select className="w-full text-lg border-2 border-primary rounded-xl p-2 mb-4 shadow focus:ring-2 focus:ring-primary" id="category" value={category} onChange={(e) => setCategory(e.target.value)} required>
           <option value="" disabled>Select a category</option>
@@ -163,7 +268,14 @@ const CreateGemPage: React.FC = () => {
         />
       </Suspense>
       
-      <Button onClick={(e) => handleSubmit(e)} className="py-2 px-4 bg-primary text-white font-bold w-full rounded hover:bg-primary-dark" type="submit">Create Gem</Button>
+      <Button 
+        onClick={(e) => handleSubmit(e)} 
+        className="py-2 px-4 bg-primary text-white font-bold w-full rounded hover:bg-primary-dark" 
+        type="submit"
+        disabled={isUploading}
+      >
+        {isUploading ? 'Creating Gem...' : 'Create Gem'}
+      </Button>
     </div>
   );
 };
