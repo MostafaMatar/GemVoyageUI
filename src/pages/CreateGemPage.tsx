@@ -5,6 +5,7 @@ import { useNavigate, Navigate } from 'react-router-dom';
 import MarkdownIt from 'markdown-it';
 import { API_BASE_URL } from "../lib/apiConfig";
 import { EditorSkeleton } from '@/components/ui/loading';
+import imageCompression from 'browser-image-compression';
 
 // Lazy load the markdown editor (and import its CSS)
 const MdEditor = lazy(() => {
@@ -79,9 +80,11 @@ const CreateGemPage: React.FC = () => {
   const [subject, setSubject] = useState('');
   const [location, setLocation] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [originalImageFile, setOriginalImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [category, setCategory] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+  const [isCompressing, setIsCompressing] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -94,27 +97,35 @@ const CreateGemPage: React.FC = () => {
     };
   }, [imagePreview]);
 
+  // Compress image function
+  const compressImage = async (file: File): Promise<File> => {
+    const options = {
+      maxSizeMB: 1, // Maximum size in MB
+      maxWidthOrHeight: 1920, // Maximum width or height
+      useWebWorker: true, // Use web worker for better performance
+      quality: 0.8, // Quality from 0 to 1
+    };
+
+    try {
+      const compressedFile = await imageCompression(file, options);
+      console.log('Original file size:', (file.size / 1024 / 1024).toFixed(2), 'MB');
+      console.log('Compressed file size:', (compressedFile.size / 1024 / 1024).toFixed(2), 'MB');
+      return compressedFile;
+    } catch (error) {
+      console.error('Error compressing image:', error);
+      throw new Error('Failed to compress image');
+    }
+  };
+
 
   const handleEditorChange = ({ text }) => {
     setContent(text);
   };
 
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      // Check file size (2MB = 2 * 1024 * 1024 bytes)
-      const maxSize = 2 * 1024 * 1024;
-      if (file.size > maxSize) {
-        toast({
-          title: 'Error',
-          description: 'Image size must be less than 2MB.',
-          variant: 'destructive',
-        });
-        event.target.value = ''; // Clear the input
-        return;
-      }
-
-      // Check file type
+      // Check file type first
       if (!file.type.startsWith('image/')) {
         toast({
           title: 'Error',
@@ -125,16 +136,51 @@ const CreateGemPage: React.FC = () => {
         return;
       }
 
-      setImageFile(file);
+      // Check original file size (warn if over 10MB)
+      const maxOriginalSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxOriginalSize) {
+        toast({
+          title: 'Error',
+          description: 'Original image size must be less than 10MB.',
+          variant: 'destructive',
+        });
+        event.target.value = ''; // Clear the input
+        return;
+      }
+
+      setOriginalImageFile(file);
+      setIsCompressing(true);
       
-      // Create preview URL
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      try {
+        // Compress the image
+        const compressedFile = await compressImage(file);
+        setImageFile(compressedFile);
+        
+        // Create preview from compressed file
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImagePreview(reader.result as string);
+        };
+        reader.readAsDataURL(compressedFile);
+
+        toast({
+          title: 'Image Compressed',
+          description: `Reduced from ${(file.size / 1024 / 1024).toFixed(2)}MB to ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`,
+          variant: 'default',
+        });
+      } catch (error) {
+        toast({
+          title: 'Compression Error',
+          description: 'Failed to compress image. Please try a different image.',
+          variant: 'destructive',
+        });
+        event.target.value = ''; // Clear the input
+      } finally {
+        setIsCompressing(false);
+      }
     } else {
       setImageFile(null);
+      setOriginalImageFile(null);
       setImagePreview(null);
     }
   };
@@ -215,7 +261,7 @@ const CreateGemPage: React.FC = () => {
         required 
       />
       <div className="mb-4">
-        <Label htmlFor="image">Image (Max 2MB)</Label>
+        <Label htmlFor="image">Image (Will be compressed automatically)</Label>
         <input
           className="w-full text-lg border-2 border-primary rounded-xl p-2 shadow focus:ring-2 focus:ring-primary"
           type="file"
@@ -223,13 +269,22 @@ const CreateGemPage: React.FC = () => {
           accept="image/*"
           onChange={handleImageChange}
           required
+          disabled={isCompressing}
         />
-        {imageFile && (
-          <div className="mt-2 text-sm text-gray-600">
-            Selected: {imageFile.name} ({(imageFile.size / 1024 / 1024).toFixed(2)} MB)
+        {isCompressing && (
+          <div className="mt-2 text-blue-600 text-sm">
+            🔄 Compressing image, please wait...
           </div>
         )}
-        {imagePreview && (
+        {originalImageFile && imageFile && !isCompressing && (
+          <div className="mt-2 text-sm text-gray-600">
+            <div>Original: {originalImageFile.name} ({(originalImageFile.size / 1024 / 1024).toFixed(2)} MB)</div>
+            <div className="text-green-600">Compressed: {(imageFile.size / 1024 / 1024).toFixed(2)} MB 
+              ({(((originalImageFile.size - imageFile.size) / originalImageFile.size) * 100).toFixed(1)}% smaller)
+            </div>
+          </div>
+        )}
+        {imagePreview && !isCompressing && (
           <div className="mt-2">
             <img 
               src={imagePreview} 
@@ -272,9 +327,9 @@ const CreateGemPage: React.FC = () => {
         onClick={(e) => handleSubmit(e)} 
         className="py-2 px-4 bg-primary text-white font-bold w-full rounded hover:bg-primary-dark" 
         type="submit"
-        disabled={isUploading}
+        disabled={isUploading || isCompressing}
       >
-        {isUploading ? 'Creating Gem...' : 'Create Gem'}
+        {isCompressing ? 'Compressing Image...' : isUploading ? 'Creating Gem...' : 'Create Gem'}
       </Button>
     </div>
   );
