@@ -30,9 +30,17 @@
       content="Join a community of explorers uncovering the world's best-kept travel secrets.">
     <meta name="twitter:image" content="https://gemvoyage.net/hero.jpg">
 
-    <!-- Privacy Scripts -->
-    <script src="https://cmp.gatekeeperconsent.com/min.js" data-cfasync="false"></script>
-    <script src="https://the.gatekeeperconsent.com/cmp.min.js" data-cfasync="false"></script>
+    <!-- GateKeeper script beginning -->
+    <script>
+        customCmpConfig = {
+            privacyUrl: "https://gemvoyage.net/privacy",
+            dialogAccentColor: "#6E59A5",
+            dialogBackgroundColor: "#FFFFFF",
+            dialogTextColor: "#181717",
+        };
+    </script>
+    <script src="https://g.ezodn.com/privacy/sa.cmp.js"></script>
+    <!-- GateKeeper script end -->
 
     <!-- Favicon -->
     <link rel="icon" href="logo.png" type="image/png">
