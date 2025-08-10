@@ -234,6 +234,13 @@ var klaroConfig = {
             purposes: ['analytics'],
         },
         {
+            name: 'adsense',
+            // if you omit the title here Klaro will try to look it up in the
+            // translations
+            //title: 'Google AdSense',
+            purposes: ['advertising'],
+        },
+        {
             name: 'cloudflare',
             title: 'Cloudflare',
             purposes: ['security'],
