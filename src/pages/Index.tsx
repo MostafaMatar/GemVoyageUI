@@ -23,11 +23,11 @@ const Index: React.FC = () => {
       </Suspense>
       
       <Suspense fallback={<ContentLoading height="h-64" />}>
-        <FeaturedGems />
+        <LatestGems />
       </Suspense>
 
       <Suspense fallback={<ContentLoading height="h-64" />}>
-        <LatestGems />
+        <FeaturedGems />
       </Suspense>
       
       <Suspense fallback={<ContentLoading height="h-48" />}>
