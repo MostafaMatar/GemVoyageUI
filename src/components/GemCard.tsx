@@ -70,7 +70,7 @@ const GemCard: React.FC<GemCardProps> = ({ gem }) => {
   
   return (
     <Card className="overflow-hidden transition-all hover:shadow-md gem-card-shadow animate-fade-in">
-      <Link to={`/gem/${gem.id}`}>
+      <Link to={`/gem/${gem.slug}`}>
         <div className="aspect-video w-full overflow-hidden">
           <img 
             src={gem.image ?? '/placeholder.svg'} 
