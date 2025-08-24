@@ -21,6 +21,7 @@ const CompleteProfile = lazy(() => import("./components/CompleteProfile"));
 const EditProfile = lazy(() => import("./pages/EditProfile"));
 const TermsOfServicePage = lazy(() => import("./pages/TermsOfServicePage"));
 const PrivacyPolicyPage = lazy(() => import("./pages/PrivacyPolicyPage"));
+const SitemapPage = lazy(() => import("./pages/SitemapPage"));
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -43,6 +44,7 @@ const App = () => (
               <Route path="/edit-profile" element={<Layout><EditProfile /></Layout>} />
               <Route path="/terms" element={<Layout><TermsOfServicePage /></Layout>} />
               <Route path="/privacy" element={<Layout><PrivacyPolicyPage /></Layout>} />
+              <Route path="/sitemap" element={<Layout><SitemapPage /></Layout>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
