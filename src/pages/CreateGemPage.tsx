@@ -237,7 +237,7 @@ const CreateGemPage: React.FC = () => {
         description: 'Gem created successfully!',
         variant: 'default',
       });
-      navigate(`/gem/${gem.id}`);
+      navigate(`/gem/${gem.slug}`);
     } catch (err: any) {
       toast({
         title: 'Error',
