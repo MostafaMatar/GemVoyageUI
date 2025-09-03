@@ -205,7 +205,7 @@ const GemDetailPage: React.FC = () => {
 
         <div className="flex flex-col md:flex-row gap-8">
           <div className="md:w-2/3">
-            <div className="prose max-w-none">
+            <div className="prose prose-lg max-w-none prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-em:text-foreground prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground prose-code:bg-muted prose-code:text-foreground prose-pre:bg-muted prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground">
               <div className="text-lg leading-relaxed mb-8" dangerouslySetInnerHTML={{ __html: mdParser.render(gem.description) }} />
             </div>
             <Separator className="my-8" />
