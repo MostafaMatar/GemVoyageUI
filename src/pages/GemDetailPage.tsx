@@ -19,7 +19,7 @@ const CommentSection = lazy(() => import('@/components/CommentSection'));
 const AuthorInfo = lazy(() => import('@/components/AuthorInfo'));
 
 const GemDetailPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id: slug } = useParams<{ id: string }>(); // URL param is always the slug
   const navigate = useNavigate();
   const { toast } = useToast();
   const [gem, setGem] = useState<Gem | null>(null);
@@ -58,13 +58,14 @@ const GemDetailPage: React.FC = () => {
 
   useEffect(() => {
     const loadGem = async () => {
-      if (!id) {
-        setError('No gem ID provided.');
+      if (!slug) {
+        setError('No gem slug provided.');
         navigate('/browse');
         return;
       }
       try {
-        const res = await fetch(`${API_BASE_URL}/gem/${id}`);
+        // Use slug for the API call
+        const res = await fetch(`${API_BASE_URL}/gem/${slug}`);
         if (!res.ok) {
           setError('Failed to fetch gem details.');
           navigate('/browse');
@@ -80,13 +81,14 @@ const GemDetailPage: React.FC = () => {
       }
     };
     loadGem();
-  }, [id, navigate]);
+  }, [slug, navigate]);
 
   useEffect(() => {
     const fetchVotes = async () => {
-      if (!id) return;
+      if (!gem?.id) return;
       try {
-        const res = await fetch(`${API_BASE_URL}/vote/gem/${id}`);
+        // Use the gem's UUID for API calls
+        const res = await fetch(`${API_BASE_URL}/vote/gem/${gem.id}`);
         if (!res.ok) throw new Error('Failed to fetch votes');
         const data = await res.json();
         setVotes(data);
@@ -96,7 +98,7 @@ const GemDetailPage: React.FC = () => {
       setLoadingVotes(false);
     };
     fetchVotes();
-  }, [id]);
+  }, [gem?.id]);
 
   const handleVote = async (positive: boolean) => {
     try {
@@ -105,10 +107,16 @@ const GemDetailPage: React.FC = () => {
         setError('You must be logged in to vote.');
         return;
       }
+      
+      if (!gem?.id) {
+        setError('Gem data not loaded.');
+        return;
+      }
+      
       // Check if user has already voted
       const existingVote = votes.find(v => v.ownerId === userId);
       const votePayload = {
-        gemId: id,
+        gemId: gem.id, // Use the gem's UUID for API calls
         ownerId: userId,
         positive,
         id: existingVote ? existingVote.id : crypto.randomUUID(),
@@ -125,8 +133,8 @@ const GemDetailPage: React.FC = () => {
         setError('Failed to submit vote.');
         return;
       }
-      // Refresh votes after voting
-      const updatedRes = await fetch(`${API_BASE_URL}/vote/gem/${id}`);
+      // Refresh votes after voting using the gem's UUID
+      const updatedRes = await fetch(`${API_BASE_URL}/vote/gem/${gem.id}`);
       if (updatedRes.ok) {
         setVotes(await updatedRes.json());
         setSuccess('Vote submitted!');
@@ -176,15 +184,25 @@ const GemDetailPage: React.FC = () => {
   const gemCategory = gem.category || 'Uncategorized';
   const gemDescription = gem.description || 'No description available';
   const gemImage = gem.image || gem.imageUrl || 'https://gemvoyage.net/hero.jpg';
-  const gemId = gem.id || id;
-  const gemSlug = gem.slug || gem.id || id;
+  const gemId = gem.id; // Use the actual UUID from gem data
+  const gemSlug = gem.slug || slug; // Use gem's slug, fallback to URL slug
+  
+  // Generate better keywords
+  const generateKeywords = () => {
+    const baseKeywords = [gemTitle, gemLocation, gemCategory, 'hidden gem', 'travel destination'];
+    // Add some words from the title (but not all)
+    const titleWords = gemTitle.split(' ').filter(word => word.length > 3);
+    baseKeywords.push(...titleWords.slice(0, 3)); // Add first 3 meaningful words
+    
+    return baseKeywords.join(', ');
+  };
 
   return (
     <div className="py-8">
       <SEOHelmet
         title={`${gemTitle} - ${gemLocation} | GemVoyage`}
         description={getDescriptionForSEO(gemDescription)}
-        keywords={`${gemTitle}, ${gemLocation}, ${gemCategory}, hidden gem, travel destination, ${gemTitle.split(' ').join(', ')}`}
+        keywords={generateKeywords()}
         canonicalUrl={`https://gemvoyage.net/gem/${gemSlug}`}
         ogTitle={`${gemTitle} in ${gemLocation}`}
         ogDescription={getDescriptionForSEO(gemDescription)}
