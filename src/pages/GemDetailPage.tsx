@@ -28,7 +28,11 @@ const GemDetailPage: React.FC = () => {
   const [loadingVotes, setLoadingVotes] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const mdParser = new MarkdownIt();
+  const mdParser = new MarkdownIt({
+    html: false,
+    linkify: true,
+    typographer: true
+  });
 
   // Helper function to extract plain text from markdown and limit to 100 characters
   const getDescriptionForSEO = (markdownText: string): string => {
@@ -111,7 +115,7 @@ const GemDetailPage: React.FC = () => {
         createdAt: existingVote ? existingVote.createdAt : new Date().toISOString(),
       };
       const method = existingVote ? 'PUT' : 'POST';
-      const url = existingVote ? `${API_BASE_URL}/vote/${existingVote.id}` : `${API_BASE_URL}/api/vote`;
+      const url = existingVote ? `${API_BASE_URL}/vote/${existingVote.id}` : `${API_BASE_URL}/vote`;
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
@@ -251,7 +255,19 @@ const GemDetailPage: React.FC = () => {
         <div className="flex flex-col md:flex-row gap-8">
           <div className="md:w-2/3">
             <div className="prose prose-lg max-w-none prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-em:text-foreground prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground prose-code:bg-muted prose-code:text-foreground prose-pre:bg-muted prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground">
-              <div className="text-lg leading-relaxed mb-8" dangerouslySetInnerHTML={{ __html: mdParser.render(gemDescription) }} />
+              <div 
+                className="text-lg leading-relaxed mb-8" 
+                dangerouslySetInnerHTML={{ 
+                  __html: (() => {
+                    try {
+                      return mdParser.render(gemDescription);
+                    } catch (error) {
+                      console.error('Markdown rendering error:', error);
+                      return `<p>${gemDescription}</p>`;
+                    }
+                  })()
+                }} 
+              />
             </div>
             <Separator className="my-8" />
           </div>
