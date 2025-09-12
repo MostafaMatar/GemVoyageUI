@@ -32,6 +32,10 @@ const GemDetailPage: React.FC = () => {
 
   // Helper function to extract plain text from markdown and limit to 100 characters
   const getDescriptionForSEO = (markdownText: string): string => {
+    if (!markdownText || typeof markdownText !== 'string') {
+      return 'Discover this hidden gem on GemVoyage.';
+    }
+    
     // Remove markdown syntax and get plain text
     const plainText = markdownText
       .replace(/#{1,6}\s/g, '') // Remove headers
@@ -162,20 +166,29 @@ const GemDetailPage: React.FC = () => {
 
   if (!gem) return null;
 
+  // Add safety checks for gem properties
+  const gemTitle = gem.title || 'Untitled Gem';
+  const gemLocation = gem.location || 'Unknown Location';
+  const gemCategory = gem.category || 'Uncategorized';
+  const gemDescription = gem.description || 'No description available';
+  const gemImage = gem.image || gem.imageUrl || 'https://gemvoyage.net/hero.jpg';
+  const gemId = gem.id || id;
+  const gemSlug = gem.slug || gem.id || id;
+
   return (
     <div className="py-8">
       <SEOHelmet
-        title={`${gem.title} - ${gem.location} | GemVoyage`}
-        description={getDescriptionForSEO(gem.description)}
-        keywords={`${gem.title}, ${gem.location}, ${gem.category}, hidden gem, travel destination, ${gem.title.split(' ').join(', ')}`}
-        canonicalUrl={`https://gemvoyage.net/gem/${gem.slug}`}
-        ogTitle={`${gem.title} in ${gem.location}`}
-        ogDescription={getDescriptionForSEO(gem.description)}
-        ogImage={gem.image || 'https://gemvoyage.net/hero.jpg'}
+        title={`${gemTitle} - ${gemLocation} | GemVoyage`}
+        description={getDescriptionForSEO(gemDescription)}
+        keywords={`${gemTitle}, ${gemLocation}, ${gemCategory}, hidden gem, travel destination, ${gemTitle.split(' ').join(', ')}`}
+        canonicalUrl={`https://gemvoyage.net/gem/${gemSlug}`}
+        ogTitle={`${gemTitle} in ${gemLocation}`}
+        ogDescription={getDescriptionForSEO(gemDescription)}
+        ogImage={gemImage}
         ogType="article"
-        twitterTitle={`${gem.title} - Hidden Gem in ${gem.location}`}
-        twitterDescription={getDescriptionForSEO(gem.description)}
-        twitterImage={gem.image || 'https://gemvoyage.net/hero.jpg'}
+        twitterTitle={`${gemTitle} - Hidden Gem in ${gemLocation}`}
+        twitterDescription={getDescriptionForSEO(gemDescription)}
+        twitterImage={gemImage}
       />
       <div className="container mx-auto px-4">
         <Button
@@ -189,15 +202,15 @@ const GemDetailPage: React.FC = () => {
 
         <div className="mb-6">
           <Badge variant="outline" className="mb-3 bg-gem-100 text-gem-500 border-gem-200">
-            {gem.category}
+            {gemCategory}
           </Badge>
-          <h1 className="text-3xl md:text-4xl font-bold mb-3">{gem.title}</h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-3">{gemTitle}</h1>
 
           <div className="flex items-center flex-wrap gap-4">
             <div className="flex items-center text-muted-foreground">
               <MapPin className="h-4 w-4 mr-1" />
               <span>
-                {gem.location}
+                {gemLocation}
               </span>
             </div>
 
@@ -211,7 +224,7 @@ const GemDetailPage: React.FC = () => {
             <div className="flex items-center text-muted-foreground">
               <span className="ml-2">
                 <Suspense fallback={<AuthorSkeleton />}>
-                  <AuthorInfo userId={gem.owner ?? ''} />
+                  <AuthorInfo userId={gem.owner || gem.ownerId || ''} />
                 </Suspense>
               </span>
             </div>
@@ -220,15 +233,15 @@ const GemDetailPage: React.FC = () => {
 
         <div className="relative rounded-xl overflow-hidden mb-8">
           <img
-            src={gem.image ?? '/placeholder.svg'}
-            alt={gem.title}
+            src={gemImage}
+            alt={gemTitle}
             className="w-full h-[400px] md:h-[500px] object-cover"
             loading="lazy"
             decoding="async"
-            srcSet={gem.image ? `
-              ${gem.image}?w=400 400w,
-              ${gem.image}?w=800 800w,
-              ${gem.image}?w=1200 1200w
+            srcSet={gemImage !== 'https://gemvoyage.net/hero.jpg' ? `
+              ${gemImage}?w=400 400w,
+              ${gemImage}?w=800 800w,
+              ${gemImage}?w=1200 1200w
             ` : undefined}
             sizes="(max-width: 768px) 100vw, 66vw"
             style={{ background: '#f3f3f3' }}
@@ -238,7 +251,7 @@ const GemDetailPage: React.FC = () => {
         <div className="flex flex-col md:flex-row gap-8">
           <div className="md:w-2/3">
             <div className="prose prose-lg max-w-none prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-em:text-foreground prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground prose-code:bg-muted prose-code:text-foreground prose-pre:bg-muted prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground">
-              <div className="text-lg leading-relaxed mb-8" dangerouslySetInnerHTML={{ __html: mdParser.render(gem.description) }} />
+              <div className="text-lg leading-relaxed mb-8" dangerouslySetInnerHTML={{ __html: mdParser.render(gemDescription) }} />
             </div>
             <Separator className="my-8" />
           </div>
@@ -263,7 +276,7 @@ const GemDetailPage: React.FC = () => {
           </div>
         </div>
         <Suspense fallback={<CommentSkeleton />}>
-          <CommentSection gemId={gem.id} />
+          <CommentSection gemId={gemId} />
         </Suspense>
       </div>
     </div>
