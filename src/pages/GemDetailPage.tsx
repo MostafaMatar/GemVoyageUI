@@ -11,6 +11,7 @@ import MarkdownIt from 'markdown-it';
 import { API_BASE_URL } from '../lib/apiConfig';
 import { useToast } from "@/hooks/use-toast";
 import { VoteButtonsSkeleton, CommentSkeleton, AuthorSkeleton } from '@/components/ui/loading';
+import SEOHelmet from '@/components/SEOHelmet';
 
 // Lazy load heavy components
 const VoteButtons = lazy(() => import('@/components/VoteButtons'));
@@ -28,6 +29,24 @@ const GemDetailPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const mdParser = new MarkdownIt();
+
+  // Helper function to extract plain text from markdown and limit to 100 characters
+  const getDescriptionForSEO = (markdownText: string): string => {
+    // Remove markdown syntax and get plain text
+    const plainText = markdownText
+      .replace(/#{1,6}\s/g, '') // Remove headers
+      .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
+      .replace(/\*(.*?)\*/g, '$1') // Remove italic
+      .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Remove links, keep text
+      .replace(/!\[.*?\]\(.*?\)/g, '') // Remove images
+      .replace(/`(.*?)`/g, '$1') // Remove code blocks
+      .replace(/\n/g, ' ') // Replace newlines with spaces
+      .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+      .trim();
+    
+    // Limit to 100 characters and add ellipsis if truncated
+    return plainText.length > 100 ? plainText.substring(0, 100) + '...' : plainText;
+  };
 
   useEffect(() => {
     const loadGem = async () => {
@@ -145,6 +164,19 @@ const GemDetailPage: React.FC = () => {
 
   return (
     <div className="py-8">
+      <SEOHelmet
+        title={`${gem.title} - ${gem.location} | GemVoyage`}
+        description={getDescriptionForSEO(gem.description)}
+        keywords={`${gem.title}, ${gem.location}, ${gem.category}, hidden gem, travel destination, ${gem.title.split(' ').join(', ')}`}
+        canonicalUrl={`https://gemvoyage.net/gem/${gem.slug}`}
+        ogTitle={`${gem.title} in ${gem.location}`}
+        ogDescription={getDescriptionForSEO(gem.description)}
+        ogImage={gem.image || 'https://gemvoyage.net/hero.jpg'}
+        ogType="article"
+        twitterTitle={`${gem.title} - Hidden Gem in ${gem.location}`}
+        twitterDescription={getDescriptionForSEO(gem.description)}
+        twitterImage={gem.image || 'https://gemvoyage.net/hero.jpg'}
+      />
       <div className="container mx-auto px-4">
         <Button
           variant="ghost"
