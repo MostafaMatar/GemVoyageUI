@@ -1,23 +1,42 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../services/supabaseClient';
+import { supabase } from '../lib/supabaseClient';
 
 export default function AuthCallback() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+    const handleAuthCallback = async () => {
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
+      if (error) {
+        console.error('Error retrieving session:', error);
+        navigate('/login');
+        return;
+      }
+
       if (session) {
-        // You can store user info or token here if needed
+        // ✅ Extract the correct values from the Supabase session
+        const accessToken = session.access_token;
+        const userId = session.user.id;
+
+        // ✅ Store them in localStorage (like your password login)
+        localStorage.setItem('access_token', accessToken);
+        localStorage.setItem('userId', userId);
         localStorage.setItem('isLoggedIn', 'true');
+
+        // Redirect to home (or profile setup)
         navigate('/');
       } else {
         navigate('/login');
       }
     };
-    checkSession();
-  }, []);
+
+    handleAuthCallback();
+  }, [navigate]);
 
   return <p>Authenticating...</p>;
 }
