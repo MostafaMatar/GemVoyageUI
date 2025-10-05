@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../services/supabaseClient';
+import { API_BASE_URL } from '../lib/apiConfig';
+
 
 export default function AuthCallback() {
   const navigate = useNavigate();
@@ -28,8 +30,9 @@ export default function AuthCallback() {
         localStorage.setItem('userId', userId);
         localStorage.setItem('isLoggedIn', 'true');
 
-        // Redirect to home (or profile setup)
-        navigate('/complete-profile');
+        const profileRes = await fetch(`${API_BASE_URL}/user_profiles/${encodeURIComponent(userId || '')}`);
+        if (profileRes.ok) navigate('/');
+        else navigate('/complete-profile');
       } else {
         navigate('/login');
       }
