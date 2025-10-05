@@ -29,7 +29,7 @@ export default function AuthCallback() {
         localStorage.setItem('isLoggedIn', 'true');
 
         // Redirect to home (or profile setup)
-        navigate('/');
+        navigate('/complete-profile');
       } else {
         navigate('/login');
       }
