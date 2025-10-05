@@ -22,6 +22,7 @@ const CompleteProfile = lazy(() => import("./components/CompleteProfile"));
 const EditProfile = lazy(() => import("./pages/EditProfile"));
 const TermsOfServicePage = lazy(() => import("./pages/TermsOfServicePage"));
 const PrivacyPolicyPage = lazy(() => import("./pages/PrivacyPolicyPage"));
+const AuthCallbackPage = lazy(() => import("./pages/AuthCallback"));
 const SitemapPage = lazy(() => import("./pages/SitemapPage"));
 const queryClient = new QueryClient();
 
@@ -47,6 +48,7 @@ const App = () => (
                 <Route path="/terms" element={<Layout><TermsOfServicePage /></Layout>} />
                 <Route path="/privacy" element={<Layout><PrivacyPolicyPage /></Layout>} />
                 <Route path="/sitemap" element={<Layout><SitemapPage /></Layout>} />
+                <Route path="/auth/callback" element={<Layout><AuthCallbackPage /></Layout>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
