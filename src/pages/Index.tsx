@@ -7,6 +7,7 @@ import { ContentLoading } from '@/components/ui/loading';
 const Hero = lazy(() => import('@/components/Hero'));
 const FeaturedGems = lazy(() => import('@/components/FeaturedGems'));
 const LatestGems = lazy(() => import('@/components/LatestGems'));
+const Cities = lazy(() => import('@/components/CityCarousel'));
 const CategoriesSection = lazy(() => import('@/components/CategoriesSection'));
 
 const Index: React.FC = () => {
@@ -21,7 +22,9 @@ const Index: React.FC = () => {
       <Suspense fallback={<ContentLoading height="h-96" />}>
         <Hero />
       </Suspense>
-      
+      <Suspense fallback={<ContentLoading height="h-64" />}>
+        <Cities />
+      </Suspense>
       <Suspense fallback={<ContentLoading height="h-64" />}>
         <LatestGems />
       </Suspense>

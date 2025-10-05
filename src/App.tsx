@@ -24,6 +24,7 @@ const TermsOfServicePage = lazy(() => import("./pages/TermsOfServicePage"));
 const PrivacyPolicyPage = lazy(() => import("./pages/PrivacyPolicyPage"));
 const AuthCallbackPage = lazy(() => import("./pages/AuthCallback"));
 const SitemapPage = lazy(() => import("./pages/SitemapPage"));
+const CityDetailPage = lazy(() => import("./pages/CityDetailPage"));
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -39,6 +40,7 @@ const App = () => (
                 <Route path="/" element={<Layout><Index /></Layout>} />
                 <Route path="/browse" element={<Layout><BrowsePage /></Layout>} />
                 <Route path="/gem/:id" element={<Layout><GemDetailPage /></Layout>} />
+                <Route path="/city/:cityName" element={<Layout><CityDetailPage /></Layout>} />
                 <Route path="/login" element={<Layout><LoginPage /></Layout>} />
                 <Route path="/register" element={<Layout><RegisterPage /></Layout>} />
                 <Route path="/create" element={<Layout><CreateGemPage /></Layout>} />

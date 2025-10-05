@@ -1,4 +1,12 @@
 
+export interface City {
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+  createdAt?: string;
+}
+
 export interface Gem {
   id: string;
   title: string;
