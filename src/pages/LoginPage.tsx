@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout.tsx';
 import Input from '../components/ui/Input.tsx';
 import { API_BASE_URL } from '../lib/apiConfig';
-import { supabase } from '../lib/supabaseClient'; // ✅ import Supabase client
+import { supabase } from '../services/supabaseClient'; // ✅ import Supabase client
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
