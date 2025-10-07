@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { API_BASE_URL } from '../lib/apiConfig';
 import { useToast } from '@/hooks/use-toast';
+import SEOHelmet from '@/components/SEOHelmet';
 
 export default function EmailConfirmation() {
   const [loading, setLoading] = useState(false);
@@ -32,6 +33,12 @@ export default function EmailConfirmation() {
 
   return (
     <div className="max-w-md mx-auto p-4 text-center">
+      <SEOHelmet
+        title="Verify Your Email | GemVoyage"
+        description="Complete your GemVoyage account setup by verifying your email address."
+        canonicalUrl={window.location.href}
+        noIndex={true}
+      />
       <h1 className="text-2xl font-bold mb-4">Verify Your Email</h1>
       <p className="mb-4">We have sent a verification email to <span className="font-semibold">{email}</span>. Please check your inbox and verify your email before you can start using the app.</p>
       <button

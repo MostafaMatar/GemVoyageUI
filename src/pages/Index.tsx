@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../lib/apiConfig';
 import { ContentLoading } from '@/components/ui/loading';
+import SEOHelmet from '@/components/SEOHelmet';
 
 // Lazy load components
 const Hero = lazy(() => import('@/components/Hero'));
@@ -19,6 +20,17 @@ const Index: React.FC = () => {
   });
   return (
     <div className="min-h-screen">
+      <SEOHelmet
+        title="GemVoyage - Discover Hidden Gems & Secret Destinations"
+        description="Join GemVoyage to discover hidden travel destinations, connect with passionate explorers, and uncover the world's best-kept secrets. Find unique places off the beaten path."
+        keywords="hidden travel destinations, secret places, travel community, unique destinations, authentic travel, travel experiences, local favorites, hidden gems, travel exploration, off the beaten path"
+        canonicalUrl={window.location.href}
+        ogTitle="GemVoyage - Discover Hidden Gems Around the World"
+        ogDescription="Join our community of travelers and explorers to discover hidden gems, secret spots, and unique destinations around the world."
+        ogType="website"
+        twitterTitle="GemVoyage - Discover Hidden Gems Around the World"
+        twitterDescription="Join our community of travelers and explorers to discover hidden gems, secret spots, and unique destinations around the world."
+      />
       <Suspense fallback={<ContentLoading height="h-96" />}>
         <Hero />
       </Suspense>

@@ -1,4 +1,5 @@
 import React from "react";
+import SEOHelmet from '@/components/SEOHelmet';
 
 const privacySections = [
   {
@@ -65,6 +66,17 @@ const privacySections = [
 
 const PrivacyPolicyPage: React.FC = () => (
   <div className="max-w-3xl mx-auto p-8 bg-white rounded-xl shadow-md my-12">
+    <SEOHelmet
+      title="Privacy Policy | GemVoyage"
+      description="Learn about how GemVoyage protects your privacy and handles your personal data. Read our comprehensive privacy policy for hidden gem discovery platform."
+      keywords="privacy policy, data protection, user privacy, hidden gems platform"
+      canonicalUrl={window.location.href}
+      ogTitle="Privacy Policy | GemVoyage"
+      ogDescription="Learn about how GemVoyage protects your privacy and handles your personal data when you discover and share hidden travel destinations."
+      ogType="website"
+      twitterTitle="Privacy Policy | GemVoyage"
+      twitterDescription="Learn about how GemVoyage protects your privacy and handles your personal data when you discover and share hidden travel destinations."
+    />
     <h1 className="text-3xl font-bold mb-8 text-center">Privacy Policy</h1>
     <div className="space-y-8">
       {privacySections.map((section, idx) => (

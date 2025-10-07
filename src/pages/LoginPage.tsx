@@ -4,6 +4,7 @@ import Layout from '../components/Layout.tsx';
 import Input from '../components/ui/Input.tsx';
 import { API_BASE_URL } from '../lib/apiConfig';
 import { supabase } from '../services/supabaseClient'; // ✅ import Supabase client
+import SEOHelmet from '@/components/SEOHelmet';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -66,6 +67,18 @@ export default function LoginPage() {
 
   return (
     <Layout>
+      <SEOHelmet
+        title="Sign In | GemVoyage"
+        description="Sign in to your GemVoyage account to discover hidden gems, share your travel experiences, and connect with fellow explorers around the world."
+        keywords="sign in, login, travel account, hidden gems, travel community"
+        canonicalUrl={window.location.href}
+        ogTitle="Sign In to GemVoyage"
+        ogDescription="Access your GemVoyage account to discover and share hidden travel destinations with our community of explorers."
+        ogType="website"
+        twitterTitle="Sign In to GemVoyage"
+        twitterDescription="Access your GemVoyage account to discover and share hidden travel destinations with our community of explorers."
+        noIndex={true}
+      />
       <div className="max-w-md mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4 text-center">Sign In</h1>
 

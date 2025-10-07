@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../services/supabaseClient';
 import { API_BASE_URL } from '../lib/apiConfig';
+import SEOHelmet from '@/components/SEOHelmet';
 
 
 export default function AuthCallback() {
@@ -41,5 +42,15 @@ export default function AuthCallback() {
     handleAuthCallback();
   }, [navigate]);
 
-  return <p>Authenticating...</p>;
+  return (
+    <div>
+      <SEOHelmet
+        title="Authenticating... | GemVoyage"
+        description="Processing authentication callback for GemVoyage account access."
+        canonicalUrl={window.location.href}
+        noIndex={true}
+      />
+      <p>Authenticating...</p>
+    </div>
+  );
 }

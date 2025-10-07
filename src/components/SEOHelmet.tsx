@@ -43,7 +43,7 @@ const SEOHelmet: React.FC<SEOHelmetProps> = ({
       <title>{title}</title>
       <meta name="description" content={description} />
       <meta name="keywords" content={keywords} />
-      <link rel="canonical" href={currentUrl} />
+      {canonicalUrl && <link rel="canonical" href={currentUrl} />}
       
       {/* Robots */}
       <meta name="robots" content={noIndex ? 'noindex, nofollow' : 'index, follow'} />

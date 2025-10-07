@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { API_BASE_URL } from '../lib/apiConfig';
 import { useToast } from '@/hooks/use-toast';
+import SEOHelmet from '@/components/SEOHelmet';
 
 interface ProfileData {
   firstName: string;
@@ -94,6 +95,18 @@ export default function EditProfile() {
 
   return (
     <div className="max-w-2xl min-h-[60vh] mx-auto p-8 flex flex-col justify-center items-center">
+      <SEOHelmet
+        title="Edit Profile | GemVoyage"
+        description="Update your GemVoyage profile to personalize your travel discovery experience and connect better with fellow explorers."
+        keywords="edit profile, user settings, account management"
+        canonicalUrl={window.location.href}
+        ogTitle="Edit Your Profile | GemVoyage"
+        ogDescription="Update your GemVoyage profile to personalize your travel discovery experience and connect better with fellow explorers."
+        ogType="website"
+        twitterTitle="Edit Your Profile | GemVoyage"
+        twitterDescription="Update your GemVoyage profile to personalize your travel discovery experience and connect better with fellow explorers."
+        noIndex={true}
+      />
       <h2 className="text-3xl font-bold mb-8">Edit Your Profile</h2>
       {fetching ? (
         <div className="text-lg">Loading...</div>

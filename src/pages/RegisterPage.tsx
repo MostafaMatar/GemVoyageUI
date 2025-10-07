@@ -4,6 +4,7 @@ import Layout from '../components/Layout.tsx';
 import Input from '../components/ui/Input.tsx';
 import { Checkbox } from '../components/ui/checkbox.tsx';
 import { API_BASE_URL } from '../lib/apiConfig';
+import SEOHelmet from '@/components/SEOHelmet';
 
 export default function RegisterPage() {
     const [email, setEmail] = useState('');
@@ -57,7 +58,20 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="max-w-md mx-auto p-4">
+        <Layout>
+            <SEOHelmet
+                title="Create Account | GemVoyage"
+                description="Join the GemVoyage community and start discovering hidden gems around the world. Create your free account to share travel experiences and connect with fellow explorers."
+                keywords="create account, register, join community, travel registration, hidden gems community"
+                canonicalUrl={window.location.href}
+                ogTitle="Join the GemVoyage Community"
+                ogDescription="Create your free GemVoyage account to discover and share hidden travel destinations with explorers worldwide."
+                ogType="website"
+                twitterTitle="Join the GemVoyage Community"
+                twitterDescription="Create your free GemVoyage account to discover and share hidden travel destinations with explorers worldwide."
+                noIndex={true}
+            />
+            <div className="max-w-md mx-auto p-4">
             <h1 className="text-2xl font-bold mb-4">Create Account</h1>
             <form onSubmit={handleSubmit} className="space-y-4">
 
@@ -126,6 +140,7 @@ export default function RegisterPage() {
             <p className="mt-4 text-center text-sm">
                 Already have an account? <Link to="/login" className="underline">Login here</Link>
             </p>
-        </div>
+            </div>
+        </Layout>
     );
 }

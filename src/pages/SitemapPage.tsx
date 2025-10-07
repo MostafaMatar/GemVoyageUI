@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { ExternalLink, Home, Search, User, Plus, FileText, Shield } from "lucide-react";
+import SEOHelmet from '@/components/SEOHelmet';
 
 interface SitemapSection {
   title: string;
@@ -108,6 +109,17 @@ const SitemapPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <SEOHelmet
+        title="Sitemap | GemVoyage"
+        description="Browse our comprehensive sitemap to easily navigate GemVoyage and discover all available pages for hidden gems, travel destinations, and community features."
+        keywords="sitemap, site navigation, page directory, hidden gems platform structure"
+        canonicalUrl={window.location.href}
+        ogTitle="Sitemap | GemVoyage"
+        ogDescription="Browse our comprehensive sitemap to easily navigate GemVoyage and discover all available pages for hidden gems and travel destinations."
+        ogType="website"
+        twitterTitle="Sitemap | GemVoyage"
+        twitterDescription="Browse our comprehensive sitemap to easily navigate GemVoyage and discover all available pages for hidden gems and travel destinations."
+      />
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-4">Site Map</h1>
         <p className="text-muted-foreground text-lg">

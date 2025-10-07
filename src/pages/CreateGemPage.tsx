@@ -6,6 +6,7 @@ import MarkdownIt from 'markdown-it';
 import { API_BASE_URL } from "../lib/apiConfig";
 import { EditorSkeleton } from '@/components/ui/loading';
 import imageCompression from 'browser-image-compression';
+import SEOHelmet from '@/components/SEOHelmet';
 
 // Lazy load the markdown editor (and import its CSS)
 const MdEditor = lazy(() => {
@@ -251,6 +252,18 @@ const CreateGemPage: React.FC = () => {
 
   return (
     <div className="p-4">
+      <SEOHelmet
+        title="Share a Hidden Gem | GemVoyage"
+        description="Share your discovery of a unique travel destination with the GemVoyage community. Upload photos, write descriptions, and help fellow travelers discover amazing hidden gems."
+        keywords="share travel destination, hidden gem submission, travel community, unique places, travel spots, secret destinations, travel experiences"
+        canonicalUrl={window.location.href}
+        ogTitle="Share Your Hidden Gem Discovery"
+        ogDescription="Join the GemVoyage community by sharing your unique travel discoveries. Help fellow explorers find amazing hidden gems around the world."
+        ogType="website"
+        twitterTitle="Share Your Hidden Gem Discovery | GemVoyage"
+        twitterDescription="Join the GemVoyage community by sharing your unique travel discoveries. Help fellow explorers find amazing hidden gems around the world."
+        noIndex={true}
+      />
       <Input 
         label="Title" 
         className="w-full text-lg border-2 border-primary rounded-xl p-2 mb-4 shadow focus:ring-2 focus:ring-primary" 

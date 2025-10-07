@@ -7,6 +7,7 @@ import { Gem } from '@/types';
 import { Search } from 'lucide-react';
 import { API_BASE_URL } from '../lib/apiConfig';
 import { GemCardSkeleton } from '@/components/ui/loading';
+import SEOHelmet from '@/components/SEOHelmet';
 
 // Lazy load the GemCard component
 const GemCard = lazy(() => import('@/components/GemCard'));
@@ -103,9 +104,54 @@ const BrowsePage: React.FC = () => {
     e.preventDefault();
     // Search is already handled by the useEffect above
   };
+
+  // Generate dynamic SEO content based on current filters
+  const generatePageTitle = () => {
+    if (selectedCategory !== 'All' && searchQuery.trim()) {
+      return `${selectedCategory} Gems: "${searchQuery}" | GemVoyage`;
+    } else if (selectedCategory !== 'All') {
+      return `${selectedCategory} Hidden Gems | GemVoyage`;
+    } else if (searchQuery.trim()) {
+      return `Search Results: "${searchQuery}" | GemVoyage`;
+    }
+    return 'Explore Hidden Gems & Secret Destinations | GemVoyage';
+  };
+
+  const generatePageDescription = () => {
+    if (selectedCategory !== 'All' && searchQuery.trim()) {
+      return `Discover ${selectedCategory.toLowerCase()} hidden gems matching "${searchQuery}". Find unique travel destinations and secret spots shared by our community.`;
+    } else if (selectedCategory !== 'All') {
+      return `Explore hidden ${selectedCategory.toLowerCase()} gems and unique destinations. Discover secret spots and authentic travel experiences in ${selectedCategory.toLowerCase()}.`;
+    } else if (searchQuery.trim()) {
+      return `Search results for "${searchQuery}" - discover hidden gems, secret destinations, and unique travel spots from our community of explorers.`;
+    }
+    return 'Browse our collection of hidden gems and secret destinations. Discover unique travel spots, authentic experiences, and off-the-beaten-path locations shared by fellow travelers.';
+  };
+
+  const generateKeywords = () => {
+    const baseKeywords = ['hidden gems', 'secret destinations', 'travel spots', 'unique places', 'authentic travel'];
+    if (selectedCategory !== 'All') {
+      baseKeywords.push(`${selectedCategory.toLowerCase()} destinations`, `${selectedCategory.toLowerCase()} travel`);
+    }
+    if (searchQuery.trim()) {
+      baseKeywords.push(searchQuery.toLowerCase());
+    }
+    return baseKeywords.join(', ');
+  };
   
   return (
     <div className="py-8">
+      <SEOHelmet
+        title={generatePageTitle()}
+        description={generatePageDescription()}
+        keywords={generateKeywords()}
+        canonicalUrl={window.location.href}
+        ogTitle={generatePageTitle()}
+        ogDescription={generatePageDescription()}
+        ogType="website"
+        twitterTitle={generatePageTitle()}
+        twitterDescription={generatePageDescription()}
+      />
       <div className="container mx-auto px-4">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Explore Hidden Gems</h1>
