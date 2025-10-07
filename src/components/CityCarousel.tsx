@@ -209,7 +209,7 @@ const CityCard: React.FC<CityCardProps> = ({ city, isActive }) => {
 
   return (
     <Link to={`/city/${cityUrl}`} className="block group">
-      <Card className="w-full h-[500px] overflow-hidden border-0 rounded-xl cursor-pointer transition-transform duration-300 hover:scale-[1.02]">
+      <Card className="w-full h-[400px] sm:h-[450px] md:h-[500px] overflow-hidden border-0 rounded-xl cursor-pointer transition-transform duration-300 hover:scale-[1.02]">
         <div className="relative w-full h-full">
           {/* Background Image */}
           {!imageError && city.image ? (
@@ -231,27 +231,32 @@ const CityCard: React.FC<CityCardProps> = ({ city, isActive }) => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/20" />
 
           {/* Content */}
-          <div className="relative h-full flex items-end p-8 md:p-12 pl-16 md:pl-20">
-            <div className="w-full space-y-4">
-              <div className="space-y-2">
+          <div className="relative h-full flex items-end p-4 sm:p-6 md:p-8 lg:p-12">
+            <div className="w-full space-y-2 sm:space-y-3 md:space-y-4">
+              <div className="space-y-1 sm:space-y-2">
                 <Badge 
                   variant="secondary" 
-                  className="bg-white/20 text-white border-white/20 backdrop-blur-sm"
+                  className="bg-white/20 text-white border-white/20 backdrop-blur-sm text-xs sm:text-sm"
                 >
                 </Badge>
                 
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight">
                   {city.name}
                 </h1>
               </div>
               
-              <p className="text-lg md:text-xl text-white/90 leading-relaxed max-w-3xl">
-                {city.description}
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90 leading-relaxed max-w-3xl">
+                <span className="sm:hidden">
+                  {city.description.length > 100 ? `${city.description.substring(0, 100)}...` : city.description}
+                </span>
+                <span className="hidden sm:block">
+                  {city.description}
+                </span>
               </p>
               
               {/* Hover indicator */}
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 pt-2">
-                <Badge variant="outline" className="bg-white/10 text-white border-white/30">
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 pt-1 sm:pt-2">
+                <Badge variant="outline" className="bg-white/10 text-white border-white/30 text-xs sm:text-sm">
                   Click to explore →
                 </Badge>
               </div>
