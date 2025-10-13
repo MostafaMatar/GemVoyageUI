@@ -1,4 +1,7 @@
 /ads.txt https://srv.adstxtmanager.com/19390/gemvoyage.net
 
+# Proxy API requests to HTTP backend
+/api/*  http://91.99.226.87/api/:splat  200
+
 # Fallback for SPA routing
 /*    /index.html   200
