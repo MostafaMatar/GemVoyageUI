@@ -203,7 +203,7 @@ const GemDetailPage: React.FC = () => {
         title={`${gemTitle} - ${gemLocation} | GemVoyage`}
         description={getDescriptionForSEO(gemDescription)}
         keywords={generateKeywords()}
-        canonicalUrl={window.location.href}
+        canonicalUrl={`https://gemvoyage.net/gem/${slug}`}
         ogTitle={`${gemTitle} in ${gemLocation}`}
         ogDescription={getDescriptionForSEO(gemDescription)}
         ogImage={gemImage}
